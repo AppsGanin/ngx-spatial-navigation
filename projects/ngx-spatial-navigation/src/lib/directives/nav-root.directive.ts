@@ -1,6 +1,5 @@
-import { Directive, ElementRef, inject } from '@angular/core';
-// @ts-ignore
-import { getNextFocus } from '@bbc/tv-lrud-spatial';
+import { AfterViewInit, Directive, ElementRef } from '@angular/core';
+import { getFirstFocusableElement, getNextFocus } from '../utils/spatial-navigation';
 
 @Directive({
   selector: '[navRoot]',
@@ -9,8 +8,36 @@ import { getNextFocus } from '@bbc/tv-lrud-spatial';
     '(keydown)': 'handleKeyDown($event)',
   },
 })
-export class NavRootDirective {
-  private readonly el = inject(ElementRef);
+export class NavRootDirective implements AfterViewInit {
+  constructor(private readonly el: ElementRef<HTMLElement>) { }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.ensureFocusExists();
+    }, 100);
+  }
+
+  private ensureFocusExists(): void {
+    // Check if there's already a focused element
+    if (document.activeElement && document.activeElement !== document.body) {
+      return;
+    }
+
+    // If no focus, set focus to the first focusable element
+    const firstFocusable = getFirstFocusableElement(this.el.nativeElement);
+    if (firstFocusable) {
+      const element = firstFocusable as any;
+
+      // Support for Ionic components with setFocus method
+      if (element && typeof element.setFocus === 'function') {
+        element.setFocus();
+      } else {
+        element.focus();
+      }
+
+      element.scrollIntoView({ block: 'center' });
+    }
+  }
 
   handleKeyDown(event: KeyboardEvent): void {
     const element = event.target as HTMLElement;

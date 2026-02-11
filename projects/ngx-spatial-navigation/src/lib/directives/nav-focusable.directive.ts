@@ -3,7 +3,6 @@ import {
   booleanAttribute,
   Directive,
   ElementRef,
-  inject,
   input,
   Renderer2,
 } from '@angular/core';
@@ -19,8 +18,10 @@ import {
   },
 })
 export class NavFocusableDirective implements AfterContentInit {
-  private readonly el = inject(ElementRef);
-  private readonly renderer = inject(Renderer2);
+  constructor(
+    private readonly el: ElementRef<HTMLElement>,
+    private readonly renderer: Renderer2
+  ) { }
 
   readonly ignore = input(false, { transform: booleanAttribute });
   readonly focus = input(false, { transform: booleanAttribute });
