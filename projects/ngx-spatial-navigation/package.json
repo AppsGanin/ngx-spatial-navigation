@@ -19,8 +19,7 @@
   "homepage": "https://github.com/kyawswarthwin/ngx-spatial-navigation#readme",
   "peerDependencies": {
     "@angular/common": "^21.0.0",
-    "@angular/core": "^21.0.0",
-    "@bbc/tv-lrud-spatial": "^0.0.5"
+    "@angular/core": "^21.0.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"
