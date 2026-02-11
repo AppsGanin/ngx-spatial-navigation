@@ -1,13 +1,10 @@
-import { BooleanInput, coerceBooleanProperty } from '@angular/cdk/coercion';
 import {
   AfterContentInit,
-  ContentChildren,
+  booleanAttribute,
+  contentChildren,
   Directive,
   ElementRef,
-  Input,
-  OnChanges,
-  QueryList,
-  Renderer2,
+  input
 } from '@angular/core';
 
 import { NavFocusableDirective } from './nav-focusable.directive';
@@ -15,47 +12,24 @@ import { NavFocusableDirective } from './nav-focusable.directive';
 @Directive({
   selector: '[navSection]',
   standalone: true,
+  host: {
+    'class': 'lrud-container',
+    '[class.lrud-ignore]': 'ignore()',
+  },
 })
-export class NavSectionDirective implements OnChanges, AfterContentInit {
-  @Input()
-  get ignore(): boolean {
-    return this._ignore;
-  }
-  set ignore(value: BooleanInput) {
-    this._ignore = coerceBooleanProperty(value);
-  }
-  private _ignore: boolean = false;
-  @Input()
-  get focus(): boolean {
-    return this._focus;
-  }
-  set focus(value: BooleanInput) {
-    this._focus = coerceBooleanProperty(value);
-  }
-  private _focus: boolean = false;
+export class NavSectionDirective implements AfterContentInit {
+  readonly ignore = input(false, { transform: booleanAttribute });
+  readonly focus = input(false, { transform: booleanAttribute });
 
-  @ContentChildren(NavFocusableDirective, {
+  readonly focusables = contentChildren(NavFocusableDirective, {
     descendants: true,
     read: ElementRef,
-  })
-  focusables!: QueryList<ElementRef>;
-
-  constructor(private el: ElementRef, private renderer: Renderer2) {
-    this.renderer.addClass(this.el.nativeElement, 'lrud-container');
-  }
-
-  ngOnChanges(): void {
-    if (this.ignore) {
-      this.renderer.addClass(this.el.nativeElement, 'lrud-ignore');
-    } else {
-      this.renderer.removeClass(this.el.nativeElement, 'lrud-ignore');
-    }
-  }
+  });
 
   ngAfterContentInit(): void {
-    if (!this.ignore && this.focus) {
+    if (!this.ignore() && this.focus()) {
       setTimeout(() => {
-        this.focusables.first?.nativeElement.focus();
+        this.focusables()[0]?.nativeElement.focus();
       }, 500);
     }
   }

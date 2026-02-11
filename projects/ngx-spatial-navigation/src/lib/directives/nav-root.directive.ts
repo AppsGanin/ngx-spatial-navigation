@@ -1,15 +1,17 @@
-import { Directive, ElementRef, HostListener } from '@angular/core';
+import { Directive, ElementRef, inject } from '@angular/core';
 // @ts-ignore
 import { getNextFocus } from '@bbc/tv-lrud-spatial';
 
 @Directive({
   selector: '[navRoot]',
   standalone: true,
+  host: {
+    '(keydown)': 'handleKeyDown($event)',
+  },
 })
 export class NavRootDirective {
-  constructor(private el: ElementRef) {}
+  private readonly el = inject(ElementRef);
 
-  @HostListener('keydown', ['$event'])
   handleKeyDown(event: KeyboardEvent): void {
     const element = event.target as HTMLElement;
 

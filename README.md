@@ -1,55 +1,83 @@
 # ngx-spatial-navigation
 
-Spatial Navigation in Angular
+Spatial Navigation for Angular 19+ (Signals, Standalone, Modern API).
 
 ## Installation
 
-```sh
-npm i ngx-spatial-navigation
+```bash
+npm install ngx-spatial-navigation
 ```
 
 ## Usage
 
-Import the `NgxSpatialNavigationModule` module into your `AppModule`:
+### 1. Provide Spatial Navigation
+
+In your `app.config.ts`, add `provideSpatialNavigation()` to the `providers` array:
 
 ```typescript
-import { NgxSpatialNavigationModule } from "ngx-spatial-navigation";
+import { provideSpatialNavigation } from 'ngx-spatial-navigation';
 
-@NgModule({
-  imports: [NgxSpatialNavigationModule],
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideSpatialNavigation(),
+    // ...
+  ]
+};
+```
+
+### 2. Import Directives
+
+Import the standalone directives directly into your component:
+
+```typescript
+import { 
+  NavRootDirective, 
+  NavSectionDirective, 
+  NavFocusableDirective 
+} from 'ngx-spatial-navigation';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [NavRootDirective, NavSectionDirective, NavFocusableDirective],
+  template: `
+    <div navRoot>
+      <div navSection [ignore]="false">
+        <button navFocusable [focus]="true">Button 1</button>
+        <button navFocusable>Button 2</button>
+      </div>
+    </div>
+  `
 })
-export class AppModule {}
+export class AppComponent {}
 ```
-
-Add the `navRoot` and `navFocusable` directives to your template:
-
-```html
-<div navRoot>
-  <div navFocusable>First element</div>
-  <div navFocusable>Second element</div>
-  <div navFocusable>Third element</div>
-</div>
-```
-
-You can now navigate through the elements using the arrow keys on your keyboard.
 
 ## API
 
-### navRoot
+### `navRoot`
 
-The `navRoot` directive is used to mark the root element where navigation will take place. There must be only one in the application.
+Marks the root element for spatial navigation. Usually placed on the main container or `body`.
 
-### navSection
+### `navSection`
 
-The `navSection` directive is needed to combine elements into a section.
+Groups focusable elements into sections.
 
-- `ignore` - If `true`, the section element will not be considered focusable and will be skipped over.
+- `[ignore]` (Signal Input): If `true`, the entire section and its children will be ignored by the navigation engine.
+- `[focus]` (Signal Input): If `true`, the first focusable element in this section will be focused on initialization.
 
-### navFocusable
+### `navFocusable`
 
-The `navFocusable` directive is used to mark elements that can be focusable.
+Marks an element as focusable.
 
-- `ignore` - If `true`, the element will not be considered focusable and will be skipped over.
+- `[ignore]` (Signal Input): If `true`, the element will be skipped.
+- `[focus]` (Signal Input): If `true`, the element will receive focus on initialization (with a small delay for stability).
+
+## Features
+
+- **Angular 21+ Ready**: Uses Signals, `inject()`, and `booleanAttribute`.
+- **Standalone**: No modules required (though `NgxSpatialNavigationModule` is provided for backward compatibility).
+- **Lightweight**: Zero dependencies on `@angular/cdk`.
+- **Ionic Support**: Automatically handles `setFocus()` for components like `ion-searchbar`.
 
 ## License
 

@@ -1,65 +1,46 @@
-import { BooleanInput, coerceBooleanProperty } from '@angular/cdk/coercion';
 import {
   AfterContentInit,
+  booleanAttribute,
   Directive,
   ElementRef,
-  HostListener,
-  Input,
-  OnChanges,
+  inject,
+  input,
   Renderer2,
 } from '@angular/core';
 
 @Directive({
   selector: '[navFocusable]',
   standalone: true,
+  host: {
+    '[class.lrud-ignore]': 'ignore()',
+    'tabindex': '-1',
+    '(focus)': 'handleFocus($event)',
+    '(keydown)': 'handleKeyDown($event)',
+  },
 })
-export class NavFocusableDirective implements OnChanges, AfterContentInit {
-  @Input()
-  get ignore(): boolean {
-    return this._ignore;
-  }
-  set ignore(value: BooleanInput) {
-    this._ignore = coerceBooleanProperty(value);
-  }
-  private _ignore: boolean = false;
-  @Input()
-  get focus(): boolean {
-    return this._focus;
-  }
-  set focus(value: BooleanInput) {
-    this._focus = coerceBooleanProperty(value);
-  }
-  private _focus: boolean = false;
+export class NavFocusableDirective implements AfterContentInit {
+  private readonly el = inject(ElementRef);
+  private readonly renderer = inject(Renderer2);
 
-  constructor(private el: ElementRef, private renderer: Renderer2) {
-    this.renderer.setAttribute(this.el.nativeElement, 'tabindex', '-1');
-  }
-
-  ngOnChanges(): void {
-    if (this.ignore) {
-      this.renderer.addClass(this.el.nativeElement, 'lrud-ignore');
-    } else {
-      this.renderer.removeClass(this.el.nativeElement, 'lrud-ignore');
-    }
-  }
+  readonly ignore = input(false, { transform: booleanAttribute });
+  readonly focus = input(false, { transform: booleanAttribute });
 
   ngAfterContentInit(): void {
-    if (!this.ignore && this.focus) {
+    if (!this.ignore() && this.focus()) {
       setTimeout(() => {
         this.el.nativeElement.focus();
       }, 500);
     }
   }
 
-  @HostListener('focus', ['$event'])
   handleFocus(event: FocusEvent): void {
-    const element = event.target as HTMLElement;
-    if (element.nodeName.toLowerCase() === 'ion-searchbar') {
-      this.el.nativeElement.setFocus();
+    const element = event.target as any;
+    // Support for Ionic searchbar or similar components with setFocus method
+    if (element && typeof element.setFocus === 'function') {
+      element.setFocus();
     }
   }
 
-  @HostListener('keydown', ['$event'])
   handleKeyDown(event: KeyboardEvent): void {
     const element = event.currentTarget as HTMLElement;
     if (event.key === 'Enter') {
